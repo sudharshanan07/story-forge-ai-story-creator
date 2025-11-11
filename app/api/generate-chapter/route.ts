@@ -1,4 +1,5 @@
-import { generateText } from "ai"
+const GEMINI_API_KEY = "AIzaSyBp11g_N4kL3T-xg1RSsd0lgdG0-gTXc8Q"
+const GEMINI_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`
 
 export async function POST(req: Request) {
   try {
@@ -7,11 +8,21 @@ export async function POST(req: Request) {
     let chapter = ""
 
     if (customPrompt) {
-      const { text } = await generateText({
-        model: "openai/gpt-4o-mini",
-        prompt: customPrompt,
+      const response = await fetch(GEMINI_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [
+            {
+              role: "user",
+              parts: [{ text: customPrompt }],
+            },
+          ],
+        }),
       })
-      chapter = text
+
+      const data = await response.json()
+      chapter = data.candidates[0].content.parts[0].text
     } else {
       const context = previousChapters.length
         ? `Previous chapters summary: ${previousChapters.slice(0, 2).join("\n\n---\n\n")}`
@@ -32,23 +43,42 @@ Write Chapter ${previousChapters ? previousChapters.length + 1 : 1} of this stor
 
 Write only the chapter content, no chapter headers or labels.`
 
-      const { text } = await generateText({
-        model: "openai/gpt-4o-mini",
-        prompt,
+      const response = await fetch(GEMINI_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [
+            {
+              role: "user",
+              parts: [{ text: prompt }],
+            },
+          ],
+        }),
       })
 
-      chapter = text
+      const data = await response.json()
+      chapter = data.candidates[0].content.parts[0].text
     }
 
     let title = "Untitled Story"
     if (isFirstChapter) {
       const titlePrompt = `Based on this story introduction: ${chapter}, generate a short, catchy, and creative book title (3 to 6 words). Don't add quotes.`
 
-      const { text: generatedTitle } = await generateText({
-        model: "openai/gpt-4o-mini",
-        prompt: titlePrompt,
+      const response = await fetch(GEMINI_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [
+            {
+              role: "user",
+              parts: [{ text: titlePrompt }],
+            },
+          ],
+        }),
       })
 
+      const data = await response.json()
+      const generatedTitle = data.candidates[0].content.parts[0].text
       title = generatedTitle.trim()
     }
 
