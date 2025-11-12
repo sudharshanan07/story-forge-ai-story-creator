@@ -10,6 +10,7 @@ interface StoryData {
   characters: string
   storySoFar: string
   chapters: string[]
+  coverImage?: string
 }
 
 interface StorySetupProps {
@@ -27,10 +28,42 @@ const GENRE_IMAGES: Record<string, string> = {
   Thriller: "https://images.unsplash.com/photo-1500577745628-33db4a67f6ec?w=1200&h=400&fit=crop",
 }
 
+const GENRE_FALLBACK_IMAGES: Record<string, string> = {
+  Fantasy: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=1200&h=400&fit=crop",
+  "Sci-Fi": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1200&h=400&fit=crop",
+  Mystery: "https://images.unsplash.com/photo-1509023464722-18d996393ca8?w=1200&h=400&fit=crop",
+  Romance: "https://images.unsplash.com/photo-1474552226712-ac0f0961a954?w=1200&h=400&fit=crop",
+  Comedy: "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=1200&h=400&fit=crop",
+  Thriller: "https://images.unsplash.com/photo-1505678261036-a3fcc5e884ee?w=1200&h=400&fit=crop",
+}
+
 export default function StorySetup({ onStartStory }: StorySetupProps) {
   const [genre, setGenre] = useState("")
   const [characters, setCharacters] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+
+  const generateCoverImage = async (genre: string, title: string, characters: string): Promise<string> => {
+    try {
+      const searchQuery = `${genre.toLowerCase()} story ${characters.split(",")[0]?.trim() || "adventure"}`
+      const unsplashUrl = `https://source.unsplash.com/1200x400/?${encodeURIComponent(searchQuery)}`
+
+      const testImg = new Image()
+      testImg.crossOrigin = "anonymous"
+
+      return new Promise((resolve) => {
+        testImg.onload = () => resolve(unsplashUrl)
+        testImg.onerror = () => resolve(GENRE_FALLBACK_IMAGES[genre] || GENRE_FALLBACK_IMAGES.Fantasy)
+        testImg.src = unsplashUrl
+
+        setTimeout(() => {
+          resolve(GENRE_FALLBACK_IMAGES[genre] || GENRE_FALLBACK_IMAGES.Fantasy)
+        }, 3000)
+      })
+    } catch (error) {
+      console.error("Error generating cover image:", error)
+      return GENRE_FALLBACK_IMAGES[genre] || GENRE_FALLBACK_IMAGES.Fantasy
+    }
+  }
 
   const handleStartStory = async () => {
     if (!genre || !characters.trim()) {
@@ -56,12 +89,15 @@ export default function StorySetup({ onStartStory }: StorySetupProps) {
       const data = await response.json()
 
       if (data.title && data.chapter) {
+        const coverImage = await generateCoverImage(genre, data.title, characters)
+
         onStartStory({
           title: data.title,
           genre,
           characters,
           storySoFar: data.chapter,
           chapters: [data.chapter],
+          coverImage,
         })
       }
     } catch (error) {

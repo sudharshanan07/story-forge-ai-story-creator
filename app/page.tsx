@@ -10,6 +10,7 @@ interface StoryData {
   characters: string
   storySoFar: string
   chapters: string[]
+  coverImage?: string
 }
 
 export default function Home() {

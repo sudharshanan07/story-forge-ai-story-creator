@@ -4,13 +4,13 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
 
-const GENRE_IMAGES: Record<string, string> = {
-  Fantasy: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&h=400&fit=crop",
-  "Sci-Fi": "https://images.unsplash.com/photo-1444080748397-f442aa95c3e5?w=1200&h=400&fit=crop",
-  Mystery: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1200&h=400&fit=crop",
-  Romance: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1200&h=400&fit=crop",
-  Comedy: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=1200&h=400&fit=crop",
-  Thriller: "https://images.unsplash.com/photo-1500577745628-33db4a67f6ec?w=1200&h=400&fit=crop",
+const GENRE_FALLBACK_IMAGES: Record<string, string> = {
+  Fantasy: "https://images.unsplash.com/photo-1518709268805-4e904279c0fa?w=1200&h=400&fit=crop",
+  "Sci-Fi": "https://images.unsplash.com/photo-1451187580459-43490279a6c3?w=1200&h=400&fit=crop",
+  Mystery: "https://images.unsplash.com/photo-1509023464722-18d99639c0fa?w=1200&h=400&fit=crop",
+  Romance: "https://images.unsplash.com/photo-1474552226712-ac0f0961a954?w=1200&h=400&fit=crop",
+  Comedy: "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=1200&h=400&fit=crop",
+  Thriller: "https://images.unsplash.com/photo-1505678261036-a3fcc5e884ee?w=1200&h=400&fit=crop",
 }
 
 interface StoryData {
@@ -19,6 +19,7 @@ interface StoryData {
   characters: string
   storySoFar: string
   chapters: string[]
+  coverImage?: string
 }
 
 interface StoryDisplayProps {
@@ -97,7 +98,7 @@ export default function StoryDisplay({ story, onStoryUpdate, onReset }: StoryDis
     }, 2000)
   }
 
-  const headerImage = GENRE_IMAGES[story.genre] || GENRE_IMAGES.Fantasy
+  const headerImage = story.coverImage || GENRE_FALLBACK_IMAGES[story.genre] || GENRE_FALLBACK_IMAGES.Fantasy
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
