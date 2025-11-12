@@ -8,7 +8,7 @@
 
 ## 🚀 Live Demo
 
-🔗 **Try it here:** [StoryForge on Vercel](https://story-forge-ai-story-creator.vercel.app/)
+🔗 **Try it here:** [StoryForge](https://story-forge-ai-story-creator.vercel.app/)
 
 ---
 
